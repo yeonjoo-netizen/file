@@ -32,10 +32,10 @@ def save_data(data):
         json.dump(data, f, ensure_ascii=False, indent=2)
 
 def inject_theme(theme_name):
-    if theme_name == "화이트 (라이트모드)":
+    if theme_name == "화이트 (라이트)":
         css = """
         <style>
-        .stApp { background-color: #FFFFFF; }
+        .stApp { background-color: #FFFFFF !important; }
         h1, h2, h3, h4, h5, h6, p, label, .stMarkdownContainer p, span, li { 
             color: #000000 !important; 
         }
@@ -56,7 +56,7 @@ def inject_theme(theme_name):
     else: # 블랙 (다크)
         css = """
         <style>
-        .stApp { background-color: #121212; }
+        .stApp { background-color: #121212 !important; }
         h1, h2, h3, h4, h5, h6, p, label, .stMarkdownContainer p, span, li { 
             color: #FFFFFF !important; 
         }
