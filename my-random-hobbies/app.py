@@ -223,6 +223,14 @@ def main():
                     placeholder.empty()
                     
                 st.markdown(f"<h2 style='text-align: center;'>👉 **{place}**</h2>", unsafe_allow_html=True)
+                col_a, col_b, col_c = st.columns([1,1,1])
+                with col_b:
+                    if st.button("🔄", key="book_place_reroll", type="primary", use_container_width=True):
+                        st.session_state.book_place = random.choice([("도서관 🏛️", "🏛️"), ("서재 📚", "📚")])
+                        st.session_state.book_drawer = None
+                        st.session_state.book_book_idx = None
+                        st.session_state.book_place_anim_done = False
+                        st.rerun()
                 
                 if place == "서재 📚":
                     st.write("---")
@@ -381,13 +389,21 @@ def main():
                 st.success(f"👉 카테고리는? **{plat}** {emoji}")
                 
                 if st.session_state.get("game_final_result") is None:
-                    if st.button("OK (이 카테고리 내에서 게임 뽑기!) 🎲", use_container_width=True):
-                        games = data["custom_games"].get(plat, [])
-                        if not games:
-                            st.warning(f"[{plat}]에 등록된 게임이 없습니다.")
-                        else:
-                            st.session_state.game_final_result = random.choice(games)
-                            st.session_state.game_final_anim_done = False
+                    c1, c2 = st.columns(2)
+                    with c1:
+                        if st.button("OK (이 카테고리 내에서 게임 뽑기!) 🎲", use_container_width=True):
+                            games = data["custom_games"].get(plat, [])
+                            if not games:
+                                st.warning(f"[{plat}]에 등록된 게임이 없습니다.")
+                            else:
+                                st.session_state.game_final_result = random.choice(games)
+                                st.session_state.game_final_anim_done = False
+                                st.rerun()
+                    with c2:
+                        if st.button("🔄", key="game_cat_reroll", type="primary", use_container_width=True):
+                            plat_choices = [("PC", "💻"), ("Mobile", "📱"), ("Nintendo", "🕹️")]
+                            st.session_state.game_won_plat_tuple = random.choice(plat_choices)
+                            st.session_state.game_plat_anim_done = False
                             st.rerun()
                 
                 if st.session_state.get("game_final_result") is not None:
@@ -500,10 +516,18 @@ def main():
                 st.success(f"👉 카테고리는? **{cat}** {emoji}")
                 
                 if st.session_state.get("food_final_result") is None:
-                    if st.button("OK (이 카테고리 내에서 음식 뽑기!) 🎲", use_container_width=True):
-                        st.session_state.food_final_result = random.choice(food_db[cat])
-                        st.session_state.food_final_anim_done = False
-                        st.rerun()
+                    c1, c2 = st.columns(2)
+                    with c1:
+                        if st.button("OK (이 카테고리 내에서 음식 뽑기!) 🎲", use_container_width=True):
+                            st.session_state.food_final_result = random.choice(food_db[cat])
+                            st.session_state.food_final_anim_done = False
+                            st.rerun()
+                    with c2:
+                        if st.button("🔄", key="food_cat_reroll", type="primary", use_container_width=True):
+                            cats = [("한식", "🇰🇷"), ("중식", "🇨🇳"), ("일식", "🇯🇵"), ("양식", "🇺🇸")]
+                            st.session_state.food_won_cat_tuple = random.choice(cats)
+                            st.session_state.food_cat_anim_done = False
+                            st.rerun()
                 
                 if st.session_state.get("food_final_result") is not None:
                     final_placeholder = st.empty()
