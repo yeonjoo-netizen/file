@@ -183,7 +183,6 @@ def main():
                     change_page(chosen[0])
             with col3:
                 if st.button("🔄", key="home_reroll", type="primary", use_container_width=True):
-                    import random
                     st.session_state.home_result = random.choice([("도서 📚", "📚"), ("게임 🎮", "🎮"), ("음식 🍔", "🍔")])
                     st.session_state.slot_done = False
                     st.rerun()
@@ -265,7 +264,6 @@ def main():
                             col_a, col_b, col_c = st.columns([1,1,1])
                             with col_b:
                                 if st.button("🔄", key="study_reroll", type="primary", use_container_width=True):
-                                    import random
                                     st.session_state.book_book_idx = random.randint(1, book_count)
                                     st.rerun()
 
@@ -280,7 +278,6 @@ def main():
                         "자기계발": ["역행자", "타이탄의 도구들", "아토믹 해빗"]
                     }
                     if st.button("도서관에서 책 추천받기 🎰", use_container_width=True):
-                        import random
                         g = random.choice(list(books_db.keys())) if genre == "무작위" else genre
                         st.session_state.lib_book = random.choice(books_db[g])
                         st.session_state.lib_genre = g
@@ -297,7 +294,6 @@ def main():
                         col_a, col_b, col_c = st.columns([1,1,1])
                         with col_b:
                             if st.button("🔄", key="lib_reroll", type="primary", use_container_width=True):
-                                import random
                                 st.session_state.lib_book = random.choice(books_db[st.session_state.lib_genre])
                                 st.session_state.lib_anim_done = False
                                 st.rerun()
@@ -364,7 +360,6 @@ def main():
                 col_a, col_b, col_c = st.columns([1,1,1])
                 with col_b:
                     if st.button("🔄", key="game_all_reroll", type="primary", use_container_width=True):
-                        import random
                         all_games = []
                         for p, g_list in data["custom_games"].items():
                             all_games.extend([(p, x) for x in g_list])
@@ -406,7 +401,6 @@ def main():
                     col_a, col_b, col_c = st.columns([1,1,1])
                     with col_b:
                         if st.button("🔄", key="game_fin_reroll", type="primary", use_container_width=True):
-                            import random
                             games = data["custom_games"].get(plat, [])
                             st.session_state.game_final_result = random.choice(games)
                             st.session_state.game_final_anim_done = False
@@ -481,7 +475,6 @@ def main():
                 col_a, col_b, col_c = st.columns([1,1,1])
                 with col_b:
                     if st.button("🔄", key="food_all_reroll", type="primary", use_container_width=True):
-                        import random
                         food_db = {
                             "한식": ["김치찌개", "비빔밥", "삼겹살", "불고기", "떡볶이", "국밥"],
                             "중식": ["짜장면", "짬뽕", "탕수육", "마라탕", "볶음밥"],
@@ -523,7 +516,6 @@ def main():
                     col_a, col_b, col_c = st.columns([1,1,1])
                     with col_b:
                         if st.button("🔄", key="food_fin_reroll", type="primary", use_container_width=True):
-                            import random
                             food_db = {
                                 "한식": ["김치찌개", "비빔밥", "삼겹살", "불고기", "떡볶이", "국밥"],
                                 "중식": ["짜장면", "짬뽕", "탕수육", "마라탕", "볶음밥"],
