@@ -7,12 +7,12 @@ from datetime import date
 
 DATA_FILE = "data.json"
 
-st.set_page_config(page_title="나의 랜덤 취미", page_icon="🎲", layout="centered")
+st.set_page_config(page_title="나의 랜덤 취미(관심영역)", page_icon="🎲", layout="centered")
 
 if "page" not in st.session_state:
     st.session_state.page = "홈"
 if "theme" not in st.session_state:
-    st.session_state.theme = "블랙 (다크)"
+    st.session_state.theme = "블랙 (다크모드)"
 
 def change_page(page_name):
     st.session_state.page = page_name
@@ -32,7 +32,7 @@ def save_data(data):
         json.dump(data, f, ensure_ascii=False, indent=2)
 
 def inject_theme(theme_name):
-    if theme_name == "화이트 (라이트)":
+    if theme_name == "화이트 (라이트모드)":
         css = """
         <style>
         .stApp { background-color: #FFFFFF; }
@@ -173,14 +173,20 @@ def main():
             
             st.markdown(f"<h2 style='text-align: center;'>축하합니다! 오늘은 **{chosen[0]}** 당첨!</h2>", unsafe_allow_html=True)
             
-            # 당첨 후 아래에 뜨는 이모지 바로가기 버튼도 중앙 정렬
-            col1, col2, col3 = st.columns([1,1,1])
+            # 당첨 후 아래에 뜨는 이모지 바로가기 버튼과 다시 뽑기 버튼
+            col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
             with col2:
                 if st.button(chosen[1], key="goto_btn", type="primary", use_container_width=True):
                     for key in list(st.session_state.keys()):
                         if key.startswith("book_") or key.startswith("game_") or key.startswith("food_"):
                             del st.session_state[key]
                     change_page(chosen[0])
+            with col3:
+                if st.button("🔄", key="home_reroll", type="primary", use_container_width=True):
+                    import random
+                    st.session_state.home_result = random.choice([("도서 📚", "📚"), ("게임 🎮", "🎮"), ("음식 🍔", "🍔")])
+                    st.session_state.slot_done = False
+                    st.rerun()
 
     elif st.session_state.page == "도서 📚":
         st.markdown("<h1 style='text-align: center; font-size: 90px;'>도서 카테고리 📚</h1>", unsafe_allow_html=True)
@@ -256,23 +262,45 @@ def main():
                         
                         if st.session_state.get("book_book_idx") is not None:
                             st.success(f"최종 당첨! **{drawer}번 서랍의 {st.session_state.book_book_idx}번째 책**을 읽으세요!")
+                            col_a, col_b, col_c = st.columns([1,1,1])
+                            with col_b:
+                                if st.button("🔄", key="study_reroll", type="primary", use_container_width=True):
+                                    import random
+                                    st.session_state.book_book_idx = random.randint(1, book_count)
+                                    st.rerun()
 
                 elif place == "도서관 🏛️":
                     st.write("---")
                     st.markdown("<h3 style='text-align: center;'>도서관에서 책 빌리기</h3>", unsafe_allow_html=True)
                     genre = st.selectbox("장르 선택", ["소설", "비문학", "만화/웹툰", "자기계발", "무작위"])
+                    books_db = {
+                        "소설": ["불편한 편의점", "달러구트 꿈 백화점", "아몬드"],
+                        "비문학": ["사피엔스", "이기적 유전자", "코스모스"],
+                        "만화/웹툰": ["나 혼자만 레벨업", "전지적 독자 시점", "화산귀환"],
+                        "자기계발": ["역행자", "타이탄의 도구들", "아토믹 해빗"]
+                    }
                     if st.button("도서관에서 책 추천받기 🎰", use_container_width=True):
-                        placeholder = st.empty()
-                        books_db = {
-                            "소설": ["불편한 편의점", "달러구트 꿈 백화점", "아몬드"],
-                            "비문학": ["사피엔스", "이기적 유전자", "코스모스"],
-                            "만화/웹툰": ["나 혼자만 레벨업", "전지적 독자 시점", "화산귀환"],
-                            "자기계발": ["역행자", "타이탄의 도구들", "아토믹 해빗"]
-                        }
+                        import random
                         g = random.choice(list(books_db.keys())) if genre == "무작위" else genre
-                        chosen_book = random.choice(books_db[g])
-                        slot_machine_effect(placeholder, ["📚", "📖", "📓", "📔", "📕", "📗"], "📚")
-                        st.success(f"당첨! 추천 도서는 **[{chosen_book}]** 입니다!")
+                        st.session_state.lib_book = random.choice(books_db[g])
+                        st.session_state.lib_genre = g
+                        st.session_state.lib_anim_done = False
+                        
+                    if "lib_book" in st.session_state:
+                        placeholder = st.empty()
+                        if not st.session_state.get("lib_anim_done"):
+                            slot_machine_effect(placeholder, ["📚", "📖", "📓", "📔", "📕", "📗"], "📚")
+                            st.session_state.lib_anim_done = True
+                        else:
+                            placeholder.markdown("<h1 style='text-align: center; font-size: 150px;'>📚</h1>", unsafe_allow_html=True)
+                        st.success(f"당첨! 추천 도서는 **[{st.session_state.lib_book}]** 입니다!")
+                        col_a, col_b, col_c = st.columns([1,1,1])
+                        with col_b:
+                            if st.button("🔄", key="lib_reroll", type="primary", use_container_width=True):
+                                import random
+                                st.session_state.lib_book = random.choice(books_db[st.session_state.lib_genre])
+                                st.session_state.lib_anim_done = False
+                                st.rerun()
         
         with tab2:
             st.subheader("리뷰 작성")
@@ -333,6 +361,16 @@ def main():
                 else:
                     placeholder.markdown(f"<h1 style='text-align: center; font-size: 150px;'>🎮</h1>", unsafe_allow_html=True)
                 st.success(f"당첨! 추천 게임은 **[{chosen_g}]** ({chosen_p}) 입니다!")
+                col_a, col_b, col_c = st.columns([1,1,1])
+                with col_b:
+                    if st.button("🔄", key="game_all_reroll", type="primary", use_container_width=True):
+                        import random
+                        all_games = []
+                        for p, g_list in data["custom_games"].items():
+                            all_games.extend([(p, x) for x in g_list])
+                        st.session_state.game_result = random.choice(all_games)
+                        st.session_state.game_anim_done = False
+                        st.rerun()
 
             elif st.session_state.get("game_mode") == "cat":
                 st.write("---")
@@ -365,6 +403,14 @@ def main():
                     else:
                         final_placeholder.markdown(f"<h1 style='text-align: center; font-size: 150px;'>🎮</h1>", unsafe_allow_html=True)
                     st.success(f"최종 당첨! 추천 게임은 **[{st.session_state.game_final_result}]** ({plat}) 입니다!")
+                    col_a, col_b, col_c = st.columns([1,1,1])
+                    with col_b:
+                        if st.button("🔄", key="game_fin_reroll", type="primary", use_container_width=True):
+                            import random
+                            games = data["custom_games"].get(plat, [])
+                            st.session_state.game_final_result = random.choice(games)
+                            st.session_state.game_final_anim_done = False
+                            st.rerun()
         
         with tab2:
             st.subheader("내가 설정한 게임 보기 및 수정")
@@ -432,6 +478,20 @@ def main():
                 else:
                     placeholder.markdown(f"<h1 style='text-align: center; font-size: 150px;'>🍽️</h1>", unsafe_allow_html=True)
                 st.success(f"당첨! 오늘 추천 메뉴는 **[{st.session_state.food_result}]** 입니다!")
+                col_a, col_b, col_c = st.columns([1,1,1])
+                with col_b:
+                    if st.button("🔄", key="food_all_reroll", type="primary", use_container_width=True):
+                        import random
+                        food_db = {
+                            "한식": ["김치찌개", "비빔밥", "삼겹살", "불고기", "떡볶이", "국밥"],
+                            "중식": ["짜장면", "짬뽕", "탕수육", "마라탕", "볶음밥"],
+                            "일식": ["초밥", "돈까스", "우동", "라멘", "회"],
+                            "양식": ["파스타", "피자", "스테이크", "햄버거", "리조또"]
+                        }
+                        all_foods = [item for sublist in food_db.values() for item in sublist]
+                        st.session_state.food_result = random.choice(all_foods)
+                        st.session_state.food_anim_done = False
+                        st.rerun()
             
             elif st.session_state.get("food_mode") == "cat":
                 st.write("---")
@@ -460,6 +520,19 @@ def main():
                     else:
                         final_placeholder.markdown(f"<h1 style='text-align: center; font-size: 150px;'>🍽️</h1>", unsafe_allow_html=True)
                     st.success(f"최종 당첨! 추천 음식은 **[{st.session_state.food_final_result}]** ({cat}) 입니다!")
+                    col_a, col_b, col_c = st.columns([1,1,1])
+                    with col_b:
+                        if st.button("🔄", key="food_fin_reroll", type="primary", use_container_width=True):
+                            import random
+                            food_db = {
+                                "한식": ["김치찌개", "비빔밥", "삼겹살", "불고기", "떡볶이", "국밥"],
+                                "중식": ["짜장면", "짬뽕", "탕수육", "마라탕", "볶음밥"],
+                                "일식": ["초밥", "돈까스", "우동", "라멘", "회"],
+                                "양식": ["파스타", "피자", "스테이크", "햄버거", "리조또"]
+                            }
+                            st.session_state.food_final_result = random.choice(food_db[cat])
+                            st.session_state.food_final_anim_done = False
+                            st.rerun()
         
         with tab2:
             st.subheader("리뷰 작성")
